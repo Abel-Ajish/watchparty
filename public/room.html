@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WatchParty Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/room.css" />
+</head>
+<body>
+
+<!-- Disclaimer Modal -->
+<div id="disclaimer-modal" class="modal-overlay">
+  <div class="modal-box disclaimer-box">
+    <div class="modal-logo">WATCH<span>PARTY</span></div>
+    <h2 class="disclaimer-title">Alpha Development Phase</h2>
+    <p class="disclaimer-sub">Thanks for trying out this app... This app is still under development. Expect it to be really rough!</p>
+    
+    <div class="disclaimer-list">
+      <div class="disclaimer-item">
+        <strong>1. Sync Stuttering:</strong> Some stuttering while syncing is normal. Please give it time to stabilize.
+      </div>
+      <div class="disclaimer-item">
+        <strong>2. Mobile Playback:</strong> Some YouTube video's (especially music video's) don't work on mobile because the owner disabled embedding. I am still looking for a workaround.
+      </div>
+      <div class="disclaimer-item">
+        <strong>3. Moving to next video:</strong> If the next video is not playing, move the video slider (the playing video on screen) towards the end to force the next one.
+      </div>
+      <div class="disclaimer-item">
+        <strong>4. Missing in Queue:</strong> If a video doesn't show in the queue, try reloading the website.
+      </div>
+    </div>
+
+    <label class="disclaimer-check">
+      <input type="checkbox" id="disclaimer-checkbox">
+      <span>I have read and understood the disclaimer</span>
+    </label>
+
+    <button id="disclaimer-btn" class="btn-primary" onclick="acceptDisclaimer()" disabled>Continue to App</button>
+  </div>
+</div>
+
+<!-- Name Modal -->
+<div id="name-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-logo">WATCH<span>PARTY</span></div>
+    <p class="modal-sub">Choose your display name to join</p>
+    <input id="name-input" type="text" placeholder="Anonymous Panda" maxlength="24" autocomplete="off" />
+    <button id="join-btn" class="btn-primary" onclick="joinRoom()">Join Room →</button>
+    <p class="modal-hint" style="margin-top: 0.8rem; font-size: 0.78rem; color: var(--muted); text-align: center;">Leave blank for a random name</p>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Header -->
+<header>
+  <div class="header-left">
+    <a href="/" class="brand">WP</a>
+    <div class="room-info">
+      <span id="room-id-display"></span>
+      <button class="copy-btn" onclick="copyRoomLink()" title="Copy invite link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy Link
+      </button>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="lock-indicator" class="lock-badge" style="display:none">🔒 Locked</div>
+    <div id="viewer-count" class="viewer-count">
+      <span class="dot"></span><span id="count-num">1</span> watching
+    </div>
+  </div>
+</header>
+
+<!-- Main layout -->
+<div class="layout">
+
+  <!-- Left: Video + URL bar + Queue -->
+  <div class="main-col">
+
+    <!-- URL Bar -->
+    <div class="url-bar">
+      <div class="url-input-wrap">
+        <svg class="yt-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>
+        <input id="url-input" type="text" placeholder="Paste a YouTube URL to load for everyone…" autocomplete="off" />
+        <div id="url-status" class="url-status"></div>
+      </div>
+      <button id="add-queue-btn" class="btn-secondary" onclick="addToQueue()" style="display:none">+ Queue</button>
+    </div>
+
+    <!-- Video container -->
+    <div class="video-wrap">
+      <div id="player-placeholder" class="player-placeholder">
+        <div class="placeholder-icon">▶</div>
+        <p>Paste a YouTube link above to start watching together</p>
+      </div>
+      <div id="player"></div>
+    </div>
+
+    <!-- Video controls bar -->
+    <div id="controls-bar" class="controls-bar" style="display:none">
+      <div class="controls-left">
+        <button id="play-pause-btn" class="ctrl-btn" onclick="togglePlayPause()">
+          <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+      </div>
+      <div class="controls-right">
+        <button id="next-btn" class="ctrl-btn-sm" onclick="playNext()" style="display:none" title="Play next in queue">⏭ Next Video</button>
+      </div>
+    </div>
+
+  </div><!-- /main-col -->
+
+  <!-- Right: Sidebar (Now Playing + Chat + Participants + Queue) -->
+  <div class="side-col">
+
+    <!-- Now Playing Section -->
+    <div id="now-playing" class="now-playing" style="display:none">
+      <div class="now-playing-label">NOW PLAYING</div>
+      <div id="video-title-sidebar" class="video-title-sidebar"></div>
+      <div class="now-playing-actions">
+        <button class="sync-btn" onclick="requestSync()" title="Re-sync with host">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 .5-4.5"/></svg>
+          Sync
+        </button>
+        <button class="btn-secondary-sm" onclick="rebuildPlayer()" title="Fix video player if it is broken">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 12a9 9 0 0115-6.7L21 8M3 22v-6h6M21 12a9 9 0 01-15 6.7L3 16"/></svg>
+          Fix Video
+        </button>
+        <a id="yt-fallback-btn" class="btn-secondary-sm" href="#" target="_blank" title="Open in YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff"/></svg>
+          YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button id="tab-chat" class="tab active" onclick="switchTab('chat', this)">Chat</button>
+      <button id="tab-queue" class="tab" onclick="switchTab('queue', this)">Queue <span id="q-count-tab">0</span></button>
+      <button id="tab-participants" class="tab" onclick="switchTab('participants', this)">Users <span id="p-count-tab">0</span></button>
+    </div>
+
+    <!-- Chat panel -->
+    <div id="chat-panel" class="panel">
+      <div id="messages" class="messages"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" placeholder="Say something…" maxlength="200" autocomplete="off" />
+        <button onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Queue panel -->
+    <div id="queue-panel" class="panel" style="display:none">
+      <div class="queue-section">
+        <div class="queue-header">
+          <span class="section-label">UP NEXT</span>
+          <span id="queue-count" class="queue-count">0 / 10</span>
+        </div>
+        <div id="queue-list" class="queue-list">
+          <div class="queue-empty">Queue is empty — paste a URL above and hit <strong>+ Queue</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Participants panel -->
+    <div id="participants-panel" class="panel" style="display:none">
+      <div id="participants-list" class="participants-list"></div>
+      <div id="host-controls" class="host-controls" style="display:none">
+        <button class="ctrl-danger" onclick="toggleLock()">
+          <span id="lock-btn-text">🔒 Lock Room</span>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /side-col -->
+
+</div><!-- /layout -->
+
+<!-- YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<!-- Socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+<!-- App logic -->
+<script src="/room.js"></script>
+</body>
+</html>

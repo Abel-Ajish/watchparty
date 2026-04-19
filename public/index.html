@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WatchParty — Watch Together</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080a0f;
+      --surface: #0e1117;
+      --border: #1c2030;
+      --accent: #ff3c5f;
+      --accent2: #ff8c42;
+      --text: #e8eaf0;
+      --muted: #5a6075;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated bg grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,60,95,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,60,95,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridDrift 20s linear infinite;
+    }
+    @keyframes gridDrift {
+      0% { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.15;
+    }
+    .orb1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -100px; animation: float1 8s ease-in-out infinite; }
+    .orb2 { width: 400px; height: 400px; background: #4060ff; bottom: -100px; right: -80px; animation: float2 10s ease-in-out infinite; }
+    @keyframes float1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(40px, 30px); } }
+    @keyframes float2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-30px, -20px); } }
+
+    .hero {
+      position: relative;
+      text-align: center;
+      z-index: 1;
+      padding: 2rem;
+    }
+
+    .logo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,60,95,0.1);
+      border: 1px solid rgba(255,60,95,0.25);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      animation: fadeDown 0.6s ease both;
+    }
+    .logo-tag::before { content: '●'; font-size: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    h1 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(5rem, 15vw, 11rem);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeDown 0.6s 0.1s ease both;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 3rem;
+      animation: fadeDown 0.6s 0.2s ease both;
+      letter-spacing: 0.5px;
+    }
+
+    .create-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 48px;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      animation: fadeDown 0.6s 0.3s ease both;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 40px rgba(255,60,95,0.3), 0 4px 20px rgba(0,0,0,0.5);
+      text-decoration: none;
+    }
+    .create-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 60px rgba(255,60,95,0.5), 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .create-btn:active { transform: translateY(0) scale(0.99); }
+    .create-btn svg { width: 22px; height: 22px; }
+
+    .features {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3.5rem;
+      animation: fadeDown 0.6s 0.4s ease both;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .feature span { color: var(--accent); font-size: 1rem; }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="hero">
+    <div class="logo-tag">Live Watch Party</div>
+    <h1>WATCH<br>PARTY</h1>
+    <p class="subtitle">Watch YouTube together, in perfect sync, no account needed.</p>
+
+    <button class="create-btn" onclick="createRoom()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      Create a Room
+    </button>
+
+    <div class="features">
+      <div class="feature"><span>⚡</span> Real-time sync</div>
+      <div class="feature"><span>🎬</span> YouTube queue</div>
+      <div class="feature"><span>💬</span> Live chat</div>
+      <div class="feature"><span>👑</span> Host controls</div>
+      <div class="feature"><span>🔗</span> One-click invite</div>
+    </div>
+  </div>
+
+  <script>
+    async function createRoom() {
+      const btn = document.querySelector('.create-btn');
+      btn.textContent = 'Creating...';
+      btn.style.pointerEvents = 'none';
+      try {
+        const res = await fetch('/api/create-room');
+        const { roomId } = await res.json();
+        window.location.href = `/room.html?room=${roomId}`;
+      } catch {
+        btn.textContent = 'Error — Try Again';
+        btn.style.pointerEvents = 'auto';
+      }
+    }
+  </script>
+</body>
+</html>
