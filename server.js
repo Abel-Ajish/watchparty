@@ -323,8 +323,35 @@ io.on('connection', (socket) => {
 
 // API: create room
 app.get('/api/create-room', (req, res) => {
-  const roomId = `${nanoid(4)}-${nanoid(4)}-${nanoid(4)}`;
-  res.json({ roomId });
+  try {
+    const roomId = `${nanoid(4)}-${nanoid(4)}-${nanoid(4)}`;
+    res.json({ roomId });
+  } catch (err) {
+    console.error('API Error:', err);
+    res.status(500).json({ error: 'Failed to create room' });
+  }
+});
+
+// Global Error Handler for Express
+app.use((err, req, res, next) => {
+  console.error('Unhandled Express Error:', err);
+  res.status(500).send('Something went wrong on the server.');
+});
+
+// Prevent server from crashing on unhandled rejections/exceptions
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  // Give the server a second to log before potentially exiting
+  setTimeout(() => {
+    if (process.env.NODE_ENV === 'production') {
+      // On Render, we might want to exit and let the service restart
+      process.exit(1);
+    }
+  }, 1000);
 });
 
 const PORT = process.env.PORT || 3000;

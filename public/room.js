@@ -138,7 +138,19 @@ socket.on('connect', () => {
 
 socket.on('disconnect', (reason) => {
   console.warn('Disconnected:', reason);
-  showToast('Connection lost. Trying to reconnect...', 'error');
+  if (reason === 'io server disconnect') {
+    // the disconnection was initiated by the server, you need to reconnect manually
+    socket.connect();
+  }
+  showToast('Connection lost. Reconnecting...', 'error');
+});
+
+socket.on('reconnect', (attemptNumber) => {
+  showToast('Reconnected to server!', 'success');
+});
+
+socket.on('reconnect_error', (err) => {
+  console.error('Reconnection error:', err);
 });
 
 socket.on('connect_error', (err) => {
